@@ -12,7 +12,6 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		byte l = Grid.LEFT, r = Grid.RIGHT, u = Grid.UP, d = Grid.DOWN,
 				dr = (byte) (d | r), ul = (byte) (u | l);
-		System.out.printf("%d, %d, %d, %d, %d, %d%n", l, d, r, u, dr, ul);
 		byte[][] gridArray = {
 				{r, d, 0, r, r, r, d},
 				{u, r, dr, u, 0, 0, d},
@@ -26,11 +25,9 @@ public class Main {
 		for (int i = 0; i < grid.getWidth(); i++)
 			for (int j = 0; j < grid.getHeight(); j++)
 				grid.set(i, j, gridArray[j][i]); // transpose
-		grid.printGrid();
-		System.out.println(grid.get(1, 0));
 		Dweller dweller = new Dweller(grid, 0.2);
 		dweller.initRandom();
-		GUI gui = new GUI(dweller);
+		GUI gui = new GUI(dweller, 1, 1);
 		dweller.addObserver(gui);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		while (reader.readLine() != null)

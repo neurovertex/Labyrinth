@@ -3,8 +3,6 @@ package eu.neurovertex.labyrinth;
 import javax.swing.*;
 import javax.swing.plaf.DimensionUIResource;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.Observable;
 import java.util.Observer;
@@ -14,22 +12,28 @@ import java.util.Observer;
  *         Date: 17/11/2014, 02:11
  */
 public class GUI extends JFrame implements Observer {
-	private GridPanel panel;
 	private Dweller dweller;
 
-	public GUI(final Dweller dweller) {
+	public GUI(final Dweller dweller, int initx, int inity) {
 		this.dweller = dweller;
-		panel = new GridPanel();
 
-		add(panel);
+		JToolBar bar = new JToolBar(SwingConstants.HORIZONTAL);
+		JButton button = new JButton("evolve");
+		button.addActionListener(e -> dweller.evolve());
+		bar.add(button);
 
-		addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_SPACE)
-					dweller.evolve();
-			}
-		});
+		button = new JButton("init");
+		button.addActionListener(e -> dweller.init(initx, inity));
+		bar.add(button);
+
+		button = new JButton("random init");
+		button.addActionListener(e -> dweller.initRandom());
+		bar.add(button);
+
+		add(bar, BorderLayout.NORTH);
+
+		GridPanel panel = new GridPanel();
+		add(panel, BorderLayout.SOUTH);
 
 		pack();
 		setVisible(true);
@@ -42,7 +46,7 @@ public class GUI extends JFrame implements Observer {
 	}
 
 	private class GridPanel extends JPanel {
-		private static final int SIZE = 700;
+		private static final int SIZE = 350;
 		private final int[][] diffs = new int[][]{new int[]{1, 0}, new int[]{0, 1}, new int[]{-1, 0}, new int[]{0, -1}};
 
 		public GridPanel() {
@@ -79,7 +83,7 @@ public class GUI extends JFrame implements Observer {
 					g.setColor(new Color(192, 192, 0, (int) (Math.pow(dweller.getProba(i, j), 0.5) * 255)));
 					g.fillRect(i * side + SIZE + 10, j * side, side, side);
 					g.setColor(Color.BLACK);
-					g.drawString(String.format("%.3f%%", dweller.getProba(i, j)), (i * 2 + 1) * side / 2 - 5 + SIZE, (j * 2 + 1) * side / 2 - 5);
+					g.drawString(String.format("%.3f", dweller.getProba(i, j)), (i * 2 + 1) * side / 2 - 7 + SIZE, (j * 2 + 1) * side / 2 - 5);
 				}
 
 			g.drawImage(img, 0, 0, null);

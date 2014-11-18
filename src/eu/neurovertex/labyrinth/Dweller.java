@@ -30,6 +30,9 @@ public class Dweller extends Observable {
 		probability[x][y] = 1.0;
 		curx = x;
 		cury = y;
+
+		setChanged();
+		notifyObservers();
 	}
 
 	public Point initRandom() {
@@ -39,6 +42,9 @@ public class Dweller extends Observable {
 			y = (int) (Math.random() * grid.getHeight());
 		} while (grid.isEmpty(x, y));
 		init(x, y);
+
+		setChanged();
+		notifyObservers();
 		return new Point(x, y);
 	}
 
