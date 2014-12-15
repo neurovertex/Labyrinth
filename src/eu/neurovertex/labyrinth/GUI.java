@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.plaf.DimensionUIResource;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -64,6 +65,18 @@ public class GUI extends JFrame implements Observer {
 
 			int side = SIZE / Math.max(grid.getWidth(), grid.getHeight());
 
+
+			double[][] sensors = new double[grid.getWidth()][grid.getHeight()];
+			for (double[] line : sensors)
+				Arrays.fill(line, 1.0);
+			for (Sensor s : dweller.getSensors()) {
+				double[][] sens = s.getProbabilities();
+				for (int x = 0; x < grid.getWidth(); x++)
+					for (int y = 0; y < grid.getHeight(); y++)
+						sensors[x][y] *= sens[x][y];
+			}
+			Dweller.normalize(sensors);
+
 			for (int i = 0; i < grid.getWidth(); i++)
 				for (int j = 0; j < grid.getHeight(); j++) {
 					if (grid.isEmpty(i, j)) {
@@ -80,7 +93,7 @@ public class GUI extends JFrame implements Observer {
 								gimg.drawLine(srcx, srcy, srcx + diffs[d][0] * len, srcy + diffs[d][1] * len);
 					}
 
-					g.setColor(new Color(192, 192, 0, (int) (Math.pow(dweller.getProba(i, j), 0.5) * 255)));
+					g.setColor(new Color((int) (Math.pow(dweller.getProba(i, j), 0.5) * 255), (int) (Math.pow(sensors[i][j], 0.5) * 255), 0));
 					g.fillRect(i * side + SIZE + 10, j * side, side, side);
 					g.setColor(Color.BLACK);
 					g.drawString(String.format("%.3f", dweller.getProba(i, j)), (i * 2 + 1) * side / 2 - 7 + SIZE, (j * 2 + 1) * side / 2 - 5);

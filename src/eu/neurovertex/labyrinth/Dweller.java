@@ -1,6 +1,9 @@
 package eu.neurovertex.labyrinth;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Observable;
 
 /**
@@ -10,6 +13,7 @@ import java.util.Observable;
 public class Dweller extends Observable {
 	private final Grid grid;
 	private final double stayProba;
+	private final List<Sensor> sensors = new ArrayList<>();
 	private int curx, cury;
 	private double[][] probability;
 
@@ -17,6 +21,19 @@ public class Dweller extends Observable {
 		this.grid = grid;
 		this.stayProba = stayProba;
 		probability = new double[grid.getWidth()][grid.getHeight()];
+	}
+
+	public static double normalize(double[][] grid) {
+		double sum = 0;
+		for (double[] line : grid)
+			for (double d : line)
+				sum += d;
+
+		if (sum > 0)
+			for (double[] line : grid)
+				for (int i = 0; i < line.length; i++)
+					line[i] /= sum;
+		return sum;
 	}
 
 	private void clearProbas() {
@@ -80,6 +97,16 @@ public class Dweller extends Observable {
 			cury = newPos.y;
 		}
 
+		for (Sensor s : sensors) {
+			s.update(this);
+			double[][] sensProbs = s.getProbabilities();
+			for (int i = 0; i < grid.getWidth(); i++)
+				for (int j = 0; j < grid.getHeight(); j++)
+					newprobs[i][j] *= sensProbs[i][j];
+		}
+
+		if (normalize(newprobs) <= 0)
+			throw new IllegalStateException("Probability sum negative or null");
 		probability = newprobs;
 
 		setChanged();
@@ -100,5 +127,13 @@ public class Dweller extends Observable {
 
 	public Grid getGrid() {
 		return grid;
+	}
+
+	public List<Sensor> getSensors() {
+		return Collections.unmodifiableList(sensors);
+	}
+
+	public void addSensor(Sensor s) {
+		sensors.add(s);
 	}
 }
